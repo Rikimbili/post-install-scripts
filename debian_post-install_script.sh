@@ -14,7 +14,7 @@ starship_config_url="https://gitcdn.xyz/cdn/Rikimbili/post-install-scripts/main/
 sudo apt update && sudo apt upgrade -y
 sudo apt install build-essential fish neovim neofetch htop git unzip python3 python3-pip -y
 
-# Set up fish with starship and fnm. Proceed with fish set up only if fish is installed
+# Set up fish with various packages
 fish_setup_errored=false
 if command -v fish &> /dev/null ; then
     fish_dir=`which fish`
