@@ -46,7 +46,7 @@ if command -v fish &> /dev/null ; then
         curl $starship_config_url -o ~/.config/starship.toml
     fi
 
-    if $fish_setup_errored = true ; then
+    if [ $fish_setup_errored = true ] ; then
         echo -e "\n${WARNING}Fish setup completed with errors.${CLEAR}\n"
     else 
         echo -e "\n${SUCCESS}Fish setup completed successfully.${CLEAR}\n"
@@ -55,7 +55,7 @@ else
     echo -e "\n${ERROR}Cannot proceed because fish was not installed properly.${CLEAR}\n"
 fi
 
-if $fish_setup_errored ; then
+if [ $fish_setup_errored = true ] ; then
     echo -e "${WARNING}Some operations completed with errors.${CLEAR}\n"
 else
     echo -e "${SUCCESS}All operations done.${CLEAR}\nDon't forget to log out and log back in for some changes to apply."
