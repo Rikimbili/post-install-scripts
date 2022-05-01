@@ -15,20 +15,22 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install build-essential fish neofetch htop git unzip python3 python3-pip -y
 
 # Set up fish with starship and fnm. Proceed with fish set up only if fish is installed
+fish_setup_errored=false
 if command -v fish &> /dev/null ; then
     fish_dir=`which fish`
-    fish_setup_errored=false
     
-    if ! grep -q "$fish_dir" /etc/shells ; then # Add fish to /etc/shells if not already present
+    # Add fish to /etc/shells if not already present
+    if ! grep -q "$fish_dir" /etc/shells ; then
         echo $fish_dir >> /etc/shells
     fi
-    test "$SHELL" != "$fish_dir" && chsh -s $fish_dir $(whoami) # Set fish as default shell if not already set
+    # Set fish as default user shell if not already set
+    [ "$SHELL" != "$fish_dir" ] && { sudo chsh -s $fish_dir $(whoami) || fish_setup_errored=true ; }
 
     # Install starship or fnm if not already installed
-    ! command -v starship &> /dev/null && curl -sS https://starship.rs/install.sh | sh
-    ! command -v fnm &> /dev/null && curl -fsSL https://fnm.vercel.app/install | bash
+    ! command -v starship &> /dev/null && { curl -sS https://starship.rs/install.sh | sh || fish_setup_errored=true ; }
+    ! command -v fnm &> /dev/null && { curl -fsSL https://fnm.vercel.app/install | bash || fish_setup_errored=true ; }
     source ~/.bashrc # Reload .bashrc
-
+    fish -c source ~/.config/fish/conf.d/fnm.fish # Reload fnm.fish with fish
 
     # Add fish configs if not already present
     if ! grep -q "$starship_fish_config" ~/.config/fish/config.fish ; then
@@ -39,7 +41,7 @@ if command -v fish &> /dev/null ; then
     fi
 
     # Check if starship.toml file exists to prevent overwriting any existing config.
-    if ! test -f ~/.config/starship.toml ; then
+    if ! [ -f ~/.config/starship.toml ] ; then
         mkdir -p ~/.config
         curl $starship_config_url -o ~/.config/starship.toml
     fi
@@ -53,4 +55,8 @@ else
     echo -e "\n${ERROR}Cannot proceed because fish was not installed properly.${CLEAR}\n"
 fi
 
-echo -e "${SUCCESS}All operations done.${CLEAR}\nDon't forget to log out and back in for some changes to apply.\n"
+if $fish_setup_errored ; then
+    echo -e "${WARNING}Some operations completed with errors.${CLEAR}\n"
+else
+    echo -e "${SUCCESS}All operations done.${CLEAR}\nDon't forget to log out and log back in for some changes to apply."
+fi
