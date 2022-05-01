@@ -22,11 +22,13 @@ if command -v fish &> /dev/null ; then
     if ! grep -q "$fish_dir" /etc/shells ; then # Add fish to /etc/shells if not already present
         echo $fish_dir >> /etc/shells
     fi
-    chsh -s $fish_dir # Set fish as default shell
+    test "$SHELL" != "$fish_dir" && chsh -s $fish_dir # Set fish as default shell if not already set
 
-    curl -sS https://starship.rs/install.sh | sh # Install starship - shell prompt
-    curl -fsSL https://fnm.vercel.app/install | bash # Install fnm - node version manager
-    source /home/debian/.bashrc # Reload .bashrc
+    # Install starship or fnm if not already installed
+    ! command -v starship &> /dev/null && curl -sS https://starship.rs/install.sh | sh
+    ! command -v fnm &> /dev/null && curl -fsSL https://fnm.vercel.app/install | bash
+    source ~/.bashrc # Reload .bashrc
+
 
     # Add fish configs if not already present
     if ! grep -q "$starship_fish_config" ~/.config/fish/config.fish ; then
@@ -37,7 +39,7 @@ if command -v fish &> /dev/null ; then
     fi
 
     # Check if starship.toml file exists to prevent overwriting any existing config.
-    if ! test -f "~/.config/starship.toml" ; then
+    if ! test -f ~/.config/starship.toml ; then
         mkdir -p ~/.config
         curl $starship_config_url -o ~/.config/starship.toml
     fi
@@ -50,3 +52,5 @@ if command -v fish &> /dev/null ; then
 else
     echo -e "\n${ERROR}Cannot proceed because fish was not installed properly.${CLEAR}\n"
 fi
+
+echo -e "${SUCCESS}All operations done.${CLEAR}\nDon't forget to log out and back in for some changes to apply.\n"
