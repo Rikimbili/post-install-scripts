@@ -1,15 +1,15 @@
 #!/usr/bin/bash
 
 # Console colors
-ERROR='\033[0;31m'
-SUCCESS='\033[0;32m'
-WARNING='\033[0;33m'
+ERROR='\033[1;31m'
+SUCCESS='\033[1;32m'
+WARNING='\033[1;33m'
 CLEAR='\033[0m'
 
 # Variable declarations
 fnm_fish_config="fnm env --use-on-cd | source"
 starship_fish_config="starship init fish | source"
-starship_config_file=./config/starship.toml
+starship_config_url="https://gitcdn.xyz/cdn/Rikimbili/post-install-scripts/main/config/starship.toml"
 
 sudo apt update && sudo apt upgrade -y
 sudo apt install build-essential fish neofetch htop git curl unzip python3 python3-pip -y
@@ -39,7 +39,7 @@ if command -v fish &> /dev/null ; then
     # Check if starship.toml file exists to prevent overwriting any existing config.
     if ! test -f "~/.config/starship.toml" ; then
         mkdir -p ~/.config
-        cp $starship_config_file ~/.config/
+        curl $starship_config_url -o ~/.config/starship.toml
     fi
 
     if $fish_setup_errored = true ; then
