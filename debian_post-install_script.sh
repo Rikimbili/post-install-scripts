@@ -22,7 +22,7 @@ if command -v fish &> /dev/null ; then
     if ! grep -q "$fish_dir" /etc/shells ; then # Add fish to /etc/shells if not already present
         echo $fish_dir >> /etc/shells
     fi
-    test "$SHELL" != "$fish_dir" && chsh -s $fish_dir # Set fish as default shell if not already set
+    test "$SHELL" != "$fish_dir" && chsh -s $fish_dir $(whoami) # Set fish as default shell if not already set
 
     # Install starship or fnm if not already installed
     ! command -v starship &> /dev/null && curl -sS https://starship.rs/install.sh | sh
