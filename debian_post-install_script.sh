@@ -12,7 +12,7 @@ starship_fish_config="starship init fish | source"
 starship_config_url="https://gitcdn.xyz/cdn/Rikimbili/post-install-scripts/main/config/starship.toml"
 
 sudo apt update && sudo apt upgrade -y
-sudo apt install build-essential fish neofetch htop git unzip python3 python3-pip -y
+sudo apt install build-essential fish neovim neofetch htop git unzip python3 python3-pip -y
 
 # Set up fish with starship and fnm. Proceed with fish set up only if fish is installed
 fish_setup_errored=false
@@ -26,9 +26,10 @@ if command -v fish &> /dev/null ; then
     # Set fish as default user shell if not already set
     [ "$SHELL" != "$fish_dir" ] && { sudo chsh -s $fish_dir $(whoami) || fish_setup_errored=true ; }
 
-    # Install starship or fnm if not already installed
+    # Install packages and set them up for fish
     ! command -v starship &> /dev/null && { curl -sS https://starship.rs/install.sh | sh || fish_setup_errored=true ; }
     ! command -v fnm &> /dev/null && { curl -fsSL https://fnm.vercel.app/install | bash || fish_setup_errored=true ; }
+    ! command -v fisher &> /dev/null && { curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && { fisher install jorgebucaran/fisher || fish_setup_errored=true ; } ; }
     source ~/.bashrc # Reload .bashrc
     fish -c source ~/.config/fish/conf.d/fnm.fish # Reload fnm.fish with fish
 
@@ -54,7 +55,6 @@ if command -v fish &> /dev/null ; then
 else
     echo -e "\n${ERROR}Cannot proceed because fish was not installed properly.${CLEAR}\n"
 fi
-
 if [ $fish_setup_errored = true ] ; then
     echo -e "${WARNING}Some operations completed with errors.${CLEAR}\n"
 else
