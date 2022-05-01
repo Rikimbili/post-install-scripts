@@ -1,0 +1,52 @@
+#!/usr/bin/bash
+
+# Console colors
+ERROR='\033[0;31m'
+SUCCESS='\033[0;32m'
+WARNING='\033[0;33m'
+CLEAR='\033[0m'
+
+# Variable declarations
+fnm_fish_config="fnm env --use-on-cd | source"
+starship_fish_config="starship init fish | source"
+starship_config_file=./config/starship.toml
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install build-essential fish neofetch htop git curl unzip python3 python3-pip -y
+
+# Set up fish with starship and fnm. Proceed with fish set up only if fish is installed
+if command -v fish &> /dev/null ; then
+    fish_dir=`which fish`
+    fish_setup_errored=false
+    
+    if ! grep -q "$fish_dir" /etc/shells ; then # Add fish to /etc/shells if not already present
+        echo $fish_dir >> /etc/shells
+    fi
+    chsh -s $fish_dir # Set fish as default shell
+
+    curl -sS https://starship.rs/install.sh | sh # Install starship - shell prompt
+    curl -fsSL https://fnm.vercel.app/install | bash # Install fnm - node version manager
+    source /home/debian/.bashrc # Reload .bashrc
+
+    # Add fish configs if not already present
+    if ! grep -q "$starship_fish_config" ~/.config/fish/config.fish ; then
+        echo "${starship_fish_config} # Initializes the starship shell prompt" >> ~/.config/fish/config.fish
+    fi
+    if ! grep -q "$fnm_fish_config" ~/.config/fish/config.fish; then
+        echo "${fnm_fish_config} # Allows fnm to auto-change node version based on directory" >> ~/.config/fish/config.fish
+    fi
+
+    # Check if starship.toml file exists to prevent overwriting any existing config.
+    if ! test -f "~/.config/starship.toml" ; then
+        mkdir -p ~/.config
+        cp $starship_config_file ~/.config/
+    fi
+
+    if $fish_setup_errored = true ; then
+        echo -e "\n${WARNING}Fish setup completed with errors.${CLEAR}\n"
+    else 
+        echo -e "\n${SUCCESS}Fish setup completed successfully.${CLEAR}\n"
+    fi
+else
+    echo -e "\n${ERROR}Cannot proceed because fish was not installed properly.${CLEAR}\n"
+fi
